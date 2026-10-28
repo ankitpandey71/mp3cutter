@@ -4,6 +4,7 @@ import { useCallback, useRef, useState } from "react";
 
 interface FileDropzoneProps {
   onFileSelected: (file: File) => void;
+  isLoading?: boolean;
 }
 
 const ACCEPTED_TYPES = [
@@ -20,7 +21,12 @@ const ACCEPTED_TYPES = [
   "audio/webm",
 ];
 
-const FileDropzone = ({ onFileSelected }: FileDropzoneProps) => {
+const FORMATS = ["MP3", "WAV", "OGG", "M4A", "AAC", "FLAC"];
+
+// Decorative equalizer bar heights
+const BARS = [40, 70, 55, 90, 65, 100, 75, 50, 85, 60, 95, 45, 70, 55, 80];
+
+const FileDropzone = ({ onFileSelected, isLoading = false }: FileDropzoneProps) => {
   const [isDragging, setIsDragging] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
 
@@ -42,6 +48,14 @@ const FileDropzone = ({ onFileSelected }: FileDropzoneProps) => {
 
   return (
     <div
+      role="button"
+      tabIndex={0}
+      onKeyDown={(e) => {
+        if (e.key === "Enter" || e.key === " ") {
+          e.preventDefault();
+          inputRef.current?.click();
+        }
+      }}
       onDragOver={(e) => {
         e.preventDefault();
         setIsDragging(true);
@@ -53,12 +67,18 @@ const FileDropzone = ({ onFileSelected }: FileDropzoneProps) => {
         handleFiles(e.dataTransfer.files);
       }}
       onClick={() => inputRef.current?.click()}
-      className={`flex w-full cursor-pointer flex-col items-center justify-center gap-4 rounded-3xl border-2 border-dashed p-12 text-center transition-colors sm:p-20 ${
-        isDragging
-          ? "border-violet-500 bg-violet-50 dark:bg-violet-950/30"
-          : "border-zinc-300 bg-white hover:border-violet-400 hover:bg-violet-50/50 dark:border-zinc-700 dark:bg-zinc-900 dark:hover:bg-zinc-800/50"
+      className={`glass-card group flex w-full cursor-pointer flex-col items-center justify-center gap-6 overflow-hidden rounded-[2rem]! p-10 text-center outline-none transition duration-300 focus-visible:ring-2 focus-visible:ring-violet-500 sm:p-16 ${
+        isDragging ? "scale-[1.01] ring-2 ring-violet-500" : "hover:-translate-y-0.5"
       }`}
     >
+      {/* Gradient border glow on hover / drag */}
+      <div
+        aria-hidden
+        className={`pointer-events-none absolute inset-0 rounded-[2rem] bg-linear-to-br from-violet-500/10 via-transparent to-fuchsia-500/10 transition-opacity duration-300 ${
+          isDragging ? "opacity-100" : "opacity-0 group-hover:opacity-100"
+        }`}
+      />
+
       <input
         ref={inputRef}
         type="file"
@@ -66,21 +86,47 @@ const FileDropzone = ({ onFileSelected }: FileDropzoneProps) => {
         className="hidden"
         onChange={(e) => handleFiles(e.target.files)}
       />
-      <div className="flex h-16 w-16 items-center justify-center rounded-full bg-violet-100 text-violet-600 dark:bg-violet-900/40 dark:text-violet-300">
-        <svg viewBox="0 0 24 24" fill="none" strokeWidth={1.8} stroke="currentColor" className="h-8 w-8">
-          <path strokeLinecap="round" strokeLinejoin="round" d="M12 16.5V9.75m0 0 3 3m-3-3-3 3M6.75 19.5a4.5 4.5 0 0 1-1.41-8.775 5.25 5.25 0 0 1 10.233-2.33 3 3 0 0 1 3.758 3.848A3.752 3.752 0 0 1 18 19.5H6.75Z" />
+
+      <div aria-hidden className="relative flex h-16 items-end gap-1">
+        {BARS.map((h, i) => (
+          <span
+            key={i}
+            className={`w-1.5 rounded-full bg-linear-to-t from-violet-600 to-fuchsia-400 ${
+              isLoading || isDragging ? "animate-eq" : "opacity-70 group-hover:animate-eq"
+            }`}
+            style={{ height: `${h}%`, animationDelay: `${i * 80}ms` }}
+          />
+        ))}
+      </div>
+
+      <div className="relative">
+        <p className="text-xl font-semibold tracking-tight text-zinc-900 dark:text-white">
+          {isLoading ? "Decoding your audio…" : isDragging ? "Release to load" : "Drop your audio file here"}
+        </p>
+        <p className="mt-2 text-sm text-zinc-500 dark:text-zinc-400">
+          or{" "}
+          <span className="font-medium text-violet-600 underline-offset-4 group-hover:underline dark:text-violet-400">
+            browse your device
+          </span>
+        </p>
+      </div>
+
+      <div className="relative flex flex-wrap justify-center gap-1.5">
+        {FORMATS.map((f) => (
+          <span
+            key={f}
+            className="rounded-md border border-zinc-900/10 bg-white/60 px-2 py-0.5 font-mono text-[11px] text-zinc-500 dark:border-white/10 dark:bg-white/5 dark:text-zinc-400"
+          >
+            {f}
+          </span>
+        ))}
+      </div>
+
+      <p className="relative flex items-center gap-1.5 text-xs text-zinc-500 dark:text-zinc-500">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.8} className="h-3.5 w-3.5 text-emerald-500">
+          <path strokeLinecap="round" strokeLinejoin="round" d="M9 12.75 11.25 15 15 9.75m-3-7.036A11.959 11.959 0 0 1 3.598 6 11.99 11.99 0 0 0 3 9.749c0 5.592 3.824 10.29 9 11.623 5.176-1.332 9-6.03 9-11.622 0-1.31-.21-2.571-.598-3.751h-.152c-3.196 0-6.1-1.248-8.25-3.285Z" />
         </svg>
-      </div>
-      <div>
-        <p className="text-lg font-semibold text-zinc-800 dark:text-zinc-100">
-          Drop your audio file here
-        </p>
-        <p className="mt-1 text-sm text-zinc-500 dark:text-zinc-400">
-          or click to browse — MP3, WAV, OGG, M4A, AAC, FLAC supported
-        </p>
-      </div>
-      <p className="text-xs text-zinc-400 dark:text-zinc-500">
-        100% private — your file is processed locally and never uploaded to a server.
+        Processed locally — never uploaded to a server
       </p>
     </div>
   );

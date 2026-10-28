@@ -1,43 +1,28 @@
 import Link from "next/link";
-
-const links = [
-  { href: "/", label: "Cutter" },
-  { href: "/about", label: "About" },
-  { href: "/monetization", label: "Support Us" },
-];
+import NavLinks from "./NavLinks";
 
 const Navbar = () => {
   return (
-    <header className="sticky top-0 z-30 border-b border-zinc-100 bg-white/80 backdrop-blur dark:border-zinc-800 dark:bg-black/70">
-      <div className="mx-auto flex max-w-6xl items-center justify-between px-4 py-4 sm:px-6">
-        <Link href="/" className="flex items-center gap-2">
-          <span className="flex h-9 w-9 items-center justify-center rounded-xl bg-violet-600 text-white">
-            <svg viewBox="0 0 24 24" fill="currentColor" className="h-5 w-5">
-              <path d="M9 18V5l12-2v13" />
-              <circle cx="6" cy="18" r="3" fill="none" stroke="currentColor" strokeWidth={1.8} />
-              <circle cx="18" cy="16" r="3" fill="none" stroke="currentColor" strokeWidth={1.8} />
+    <header className="sticky top-0 z-30 px-3 pt-3 sm:px-6">
+      <div className="glass-card mx-auto flex max-w-6xl items-center justify-between rounded-2xl! px-3 py-2.5 sm:px-4">
+        <Link href="/" className="group flex items-center gap-2.5">
+          <span className="relative flex h-9 w-9 items-center justify-center rounded-xl bg-linear-to-br from-violet-500 via-violet-600 to-fuchsia-600 text-white shadow-lg shadow-violet-600/30 transition group-hover:scale-105">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" className="h-5 w-5">
+              <path d="M4 12h2M8 8v8M12 5v14M16 9v6M20 12h0" />
             </svg>
           </span>
-          <span className="text-lg font-bold tracking-tight text-zinc-900 dark:text-white">
-            Snip<span className="text-violet-600">Audio</span>
+          <span className="text-lg font-semibold tracking-tight text-zinc-900 dark:text-white">
+            Snip<span className="text-gradient">Audio</span>
           </span>
         </Link>
 
-        <nav className="flex items-center gap-1 sm:gap-2">
-          {links.map((link) => (
-            <Link
-              key={link.href}
-              href={link.href}
-              className="rounded-lg px-3 py-2 text-sm font-medium text-zinc-600 transition hover:bg-violet-50 hover:text-violet-700 dark:text-zinc-300 dark:hover:bg-zinc-800"
-            >
-              {link.label}
-            </Link>
-          ))}
+        <nav className="flex items-center gap-1">
+          <NavLinks />
           <a
             href="#donate"
-            className="ml-1 hidden rounded-lg bg-violet-600 px-4 py-2 text-sm font-semibold text-white shadow-sm transition hover:bg-violet-700 sm:block"
+            className="btn-primary ml-1 hidden px-4 py-2 text-sm sm:inline-flex"
           >
-            ☕ Buy us a coffee
+            Support us
           </a>
         </nav>
       </div>

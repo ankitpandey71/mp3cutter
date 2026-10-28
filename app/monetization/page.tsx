@@ -43,9 +43,9 @@ const streams = [
 
 const MonetizationPage = () => {
   return (
-    <div className="mx-auto flex max-w-3xl flex-col gap-8 px-4 py-16 sm:px-6">
+    <div className="mx-auto flex max-w-3xl flex-col gap-8 px-4 py-14 leading-relaxed sm:px-6">
       <div>
-        <h1 className="text-3xl font-extrabold text-zinc-900 dark:text-white">
+        <h1 className="text-4xl font-semibold tracking-tight text-zinc-900 dark:text-white">
           How SnipAudio earns money
         </h1>
         <p className="mt-3 text-zinc-600 dark:text-zinc-300">
@@ -59,7 +59,7 @@ const MonetizationPage = () => {
         {streams.map((s) => (
           <div
             key={s.title}
-            className="rounded-2xl border border-violet-100 bg-white p-6 dark:border-zinc-800 dark:bg-zinc-900"
+            className="glass-card p-6"
           >
             <div className="flex items-center gap-3">
               <span className="text-2xl">{s.icon}</span>
@@ -68,21 +68,21 @@ const MonetizationPage = () => {
               </h2>
             </div>
             <p className="mt-2 text-sm text-zinc-600 dark:text-zinc-300">{s.body}</p>
-            <p className="mt-2 rounded-lg bg-violet-50 p-3 text-xs text-violet-700 dark:bg-violet-950/30 dark:text-violet-300">
+            <p className="mt-2 rounded-xl border border-violet-500/15 bg-violet-500/5 p-3 text-xs leading-relaxed text-violet-700 dark:text-violet-300">
               Setup: {s.action}
             </p>
           </div>
         ))}
       </div>
 
-      <div className="rounded-2xl border border-dashed border-violet-300 p-6 text-center dark:border-violet-800">
+      <div className="glass-card p-8 text-center">
         <p className="text-zinc-700 dark:text-zinc-200">
           Found the tool useful? The easiest way to support it costs nothing:
           share it with a friend who needs to trim an audio clip.
         </p>
         <a
           href="#donate"
-          className="mt-4 inline-block rounded-xl bg-violet-600 px-6 py-3 font-semibold text-white shadow-sm transition hover:bg-violet-700"
+          className="btn-primary mt-5 px-6 py-3"
         >
           ☕ Support SnipAudio
         </a>

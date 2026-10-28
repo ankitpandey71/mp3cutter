@@ -26,7 +26,7 @@ const RootLayout = ({ children }: LayoutProps<"/">) => {
       lang="en"
       className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
     >
-      <body className="flex min-h-full flex-col bg-zinc-50 dark:bg-black">
+      <body className="relative flex min-h-full flex-col bg-background text-foreground">
         <Navbar />
         <main className="flex flex-1 flex-col">{children}</main>
         <Footer />

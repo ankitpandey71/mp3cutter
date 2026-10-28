@@ -11,6 +11,7 @@ import {
   sliceAudioBuffer,
 } from "@/lib/audio/decode";
 import { exportAudioBuffer, type ExportFormat } from "@/lib/audio/encode";
+import { formatBytes, formatTime } from "@/lib/utils/formatTime";
 
 const baseName = (name: string): string => name.replace(/\.[^/.]+$/, "");
 
@@ -80,40 +81,58 @@ const MP3Cutter = () => {
     [audioBuffer, file]
   );
 
+  const errorBanner = error && (
+    <div
+      role="alert"
+      className="flex items-start gap-3 rounded-2xl border border-red-500/20 bg-red-500/10 px-4 py-3 text-sm text-red-700 dark:text-red-300"
+    >
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.8} className="mt-0.5 h-4 w-4 shrink-0">
+        <path strokeLinecap="round" strokeLinejoin="round" d="M12 9v3.75m9-.75a9 9 0 1 1-18 0 9 9 0 0 1 18 0Zm-9 3.75h.008v.008H12v-.008Z" />
+      </svg>
+      {error}
+    </div>
+  );
+
   if (!file) {
     return (
-      <div className="mx-auto w-full max-w-2xl">
-        <FileDropzone onFileSelected={handleFileSelected} />
-        {isDecoding && (
-          <p className="mt-4 text-center text-sm text-zinc-500">Loading your audio…</p>
-        )}
-        {error && (
-          <p className="mt-4 text-center text-sm font-medium text-red-500">{error}</p>
-        )}
-        <div className="mt-8">
-          <AdSlot slot="cutter-empty-state" />
-        </div>
+      <div className="mx-auto flex w-full max-w-3xl flex-col gap-6">
+        <FileDropzone onFileSelected={handleFileSelected} isLoading={isDecoding} />
+        {errorBanner}
+        <AdSlot slot="cutter-empty-state" />
       </div>
     );
   }
 
   return (
-    <div className="mx-auto grid w-full max-w-5xl gap-6 lg:grid-cols-[minmax(0,1fr)_280px]">
-      <div className="flex flex-col gap-6">
-        <div className="flex items-center justify-between">
-          <div className="min-w-0">
-            <p className="truncate text-sm font-medium text-zinc-700 dark:text-zinc-200">
+    <div className="mx-auto grid w-full max-w-6xl gap-6 lg:grid-cols-[minmax(0,1fr)_280px]">
+      <div className="flex flex-col gap-5">
+        <div className="glass-card flex items-center gap-4 rounded-2xl! p-4">
+          <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-linear-to-br from-violet-500 to-fuchsia-600 text-white shadow-lg shadow-violet-600/25">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.8} className="h-5 w-5">
+              <path strokeLinecap="round" strokeLinejoin="round" d="m9 9 10.5-3m0 6.553v3.75a2.25 2.25 0 0 1-1.632 2.163l-1.32.377a1.803 1.803 0 1 1-.99-3.467l2.31-.66a2.25 2.25 0 0 0 1.632-2.163Zm0 0V2.25L9 5.25v10.303m0 0v3.75a2.25 2.25 0 0 1-1.632 2.163l-1.32.377a1.803 1.803 0 0 1-.99-3.467l2.31-.66A2.25 2.25 0 0 0 9 15.553Z" />
+            </svg>
+          </span>
+          <div className="min-w-0 flex-1">
+            <p className="truncate text-sm font-semibold text-zinc-900 dark:text-white">
               {file.name}
             </p>
-            <p className="text-xs text-zinc-400">
-              {(file.size / 1024 / 1024).toFixed(2)} MB
+            <p className="mt-0.5 flex gap-2 font-mono text-xs text-zinc-500 dark:text-zinc-400">
+              <span>{formatBytes(file.size)}</span>
+              {audioBuffer && (
+                <>
+                  <span className="text-zinc-300 dark:text-zinc-600">·</span>
+                  <span>{formatTime(audioBuffer.duration)}</span>
+                  <span className="text-zinc-300 dark:text-zinc-600">·</span>
+                  <span>{(audioBuffer.sampleRate / 1000).toFixed(1)} kHz</span>
+                </>
+              )}
             </p>
           </div>
           <button
             onClick={handleReset}
-            className="rounded-lg border border-zinc-200 px-3 py-1.5 text-xs font-medium text-zinc-600 transition hover:border-red-300 hover:text-red-500 dark:border-zinc-700 dark:text-zinc-300"
+            className="shrink-0 rounded-xl border border-zinc-900/10 px-3 py-2 text-xs font-medium text-zinc-600 transition hover:border-red-500/30 hover:bg-red-500/5 hover:text-red-600 dark:border-white/10 dark:text-zinc-300 dark:hover:text-red-400"
           >
-            Choose another file
+            Change file
           </button>
         </div>
 
@@ -121,15 +140,9 @@ const MP3Cutter = () => {
           file={file}
           onRegionChange={(start, end) => setRange({ start, end })}
           onDurationReady={(dur) => setRange({ start: 0, end: dur })}
+          onRestart={() => setPlaybackKey((k) => k + 1)}
           playbackKey={playbackKey}
         />
-
-        <button
-          onClick={() => setPlaybackKey((k) => k + 1)}
-          className="self-center text-sm font-medium text-violet-600 hover:underline dark:text-violet-400"
-        >
-          ↺ Restart selection from beginning
-        </button>
 
         {audioBuffer && (
           <ExportPanel
@@ -142,9 +155,7 @@ const MP3Cutter = () => {
           />
         )}
 
-        {error && (
-          <p className="text-center text-sm font-medium text-red-500">{error}</p>
-        )}
+        {errorBanner}
       </div>
 
       <aside className="flex flex-col gap-4">

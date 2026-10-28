@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, type CSSProperties } from "react";
 import type { ExportFormat } from "@/lib/audio/encode";
 import { formatTime } from "@/lib/utils/formatTime";
 
@@ -29,31 +29,41 @@ const ExportPanel = ({
   const [fadeOut, setFadeOut] = useState(0);
 
   const duration = Math.max(0, end - start);
+  const maxFade = Math.min(5, duration / 2);
+  const fillOf = (value: number): CSSProperties =>
+    ({ "--fill": `${maxFade > 0 ? (value / maxFade) * 100 : 0}%` }) as CSSProperties;
+  const labelClass =
+    "mb-2.5 flex items-center justify-between text-[11px] font-medium uppercase tracking-wider text-zinc-500 dark:text-zinc-400";
 
   return (
-    <div className="w-full rounded-2xl border border-violet-100 bg-white p-6 shadow-sm dark:border-zinc-800 dark:bg-zinc-900">
-      <h2 className="text-base font-semibold text-zinc-800 dark:text-zinc-100">
-        Export settings
-      </h2>
-      <p className="mt-1 text-sm text-zinc-500 dark:text-zinc-400">
-        Selected clip: <span className="font-mono">{formatTime(duration)}</span> from{" "}
-        <span className="truncate font-medium">{fileName}</span>
-      </p>
-
-      <div className="mt-5 grid gap-5 sm:grid-cols-2">
+    <div className="glass-card w-full p-6">
+      <div className="flex flex-wrap items-start justify-between gap-3">
         <div>
-          <label className="mb-2 block text-xs font-medium uppercase tracking-wide text-zinc-500 dark:text-zinc-400">
-            Format
-          </label>
-          <div className="flex gap-2">
+          <h2 className="text-base font-semibold text-zinc-900 dark:text-white">
+            Export settings
+          </h2>
+          <p className="mt-1 max-w-xs truncate text-sm text-zinc-500 dark:text-zinc-400 sm:max-w-sm">
+            {fileName}
+          </p>
+        </div>
+        <span className="rounded-full border border-violet-500/20 bg-violet-500/10 px-3 py-1 font-mono text-xs font-medium text-violet-700 dark:text-violet-300">
+          {formatTime(duration)} clip
+        </span>
+      </div>
+
+      <div className="mt-6 grid gap-6 sm:grid-cols-2">
+        <div>
+          <span className={labelClass}>Format</span>
+          <div className="grid grid-cols-2 gap-1 rounded-xl bg-zinc-900/5 p-1 dark:bg-white/5">
             {(["mp3", "wav"] as ExportFormat[]).map((f) => (
               <button
                 key={f}
                 onClick={() => setFormat(f)}
-                className={`flex-1 rounded-xl border px-4 py-2 text-sm font-semibold uppercase transition ${
+                aria-pressed={format === f}
+                className={`rounded-lg px-4 py-2 text-sm font-semibold uppercase transition ${
                   format === f
-                    ? "border-violet-600 bg-violet-600 text-white"
-                    : "border-zinc-200 text-zinc-600 hover:border-violet-300 dark:border-zinc-700 dark:text-zinc-300"
+                    ? "bg-white text-violet-700 shadow-sm dark:bg-zinc-800 dark:text-white"
+                    : "text-zinc-500 hover:text-zinc-900 dark:text-zinc-400 dark:hover:text-white"
                 }`}
               >
                 {f}
@@ -62,20 +72,21 @@ const ExportPanel = ({
           </div>
         </div>
 
-        <div className={format === "wav" ? "opacity-40" : ""}>
-          <label className="mb-2 block text-xs font-medium uppercase tracking-wide text-zinc-500 dark:text-zinc-400">
-            Bitrate
-          </label>
-          <div className="flex gap-2">
+        <div className={`transition-opacity ${format === "wav" ? "opacity-40" : ""}`}>
+          <span className={labelClass}>
+            Bitrate <span className="font-mono normal-case tracking-normal">kbps</span>
+          </span>
+          <div className="grid grid-cols-4 gap-1 rounded-xl bg-zinc-900/5 p-1 dark:bg-white/5">
             {BITRATES.map((b) => (
               <button
                 key={b}
                 disabled={format === "wav"}
                 onClick={() => setBitrate(b)}
-                className={`flex-1 rounded-xl border px-2 py-2 text-xs font-semibold transition ${
+                aria-pressed={bitrate === b}
+                className={`rounded-lg px-1 py-2 font-mono text-xs font-semibold transition disabled:cursor-not-allowed ${
                   bitrate === b
-                    ? "border-violet-600 bg-violet-50 text-violet-700 dark:bg-violet-950/40 dark:text-violet-300"
-                    : "border-zinc-200 text-zinc-600 dark:border-zinc-700 dark:text-zinc-300"
+                    ? "bg-white text-violet-700 shadow-sm dark:bg-zinc-800 dark:text-white"
+                    : "text-zinc-500 hover:text-zinc-900 dark:text-zinc-400 dark:hover:text-white"
                 }`}
               >
                 {b}
@@ -84,60 +95,67 @@ const ExportPanel = ({
           </div>
         </div>
 
-        <div>
-          <label className="mb-2 flex justify-between text-xs font-medium uppercase tracking-wide text-zinc-500 dark:text-zinc-400">
-            Fade in <span className="font-mono normal-case">{fadeIn.toFixed(1)}s</span>
-          </label>
+        <label className="block">
+          <span className={labelClass}>
+            Fade in <span className="font-mono normal-case tracking-normal text-zinc-900 dark:text-white">{fadeIn.toFixed(1)}s</span>
+          </span>
           <input
             type="range"
             min={0}
-            max={Math.min(5, duration / 2)}
+            max={maxFade}
             step={0.1}
             value={fadeIn}
             onChange={(e) => setFadeIn(Number(e.target.value))}
-            className="w-full accent-violet-600"
+            className="range-premium w-full"
+            style={fillOf(fadeIn)}
           />
-        </div>
+        </label>
 
-        <div>
-          <label className="mb-2 flex justify-between text-xs font-medium uppercase tracking-wide text-zinc-500 dark:text-zinc-400">
-            Fade out <span className="font-mono normal-case">{fadeOut.toFixed(1)}s</span>
-          </label>
+        <label className="block">
+          <span className={labelClass}>
+            Fade out <span className="font-mono normal-case tracking-normal text-zinc-900 dark:text-white">{fadeOut.toFixed(1)}s</span>
+          </span>
           <input
             type="range"
             min={0}
-            max={Math.min(5, duration / 2)}
+            max={maxFade}
             step={0.1}
             value={fadeOut}
             onChange={(e) => setFadeOut(Number(e.target.value))}
-            className="w-full accent-violet-600"
+            className="range-premium w-full"
+            style={fillOf(fadeOut)}
           />
-        </div>
+        </label>
       </div>
 
       <button
         disabled={isExporting || duration <= 0}
         onClick={() => onExport(format, bitrate, fadeIn, fadeOut)}
-        className="mt-6 flex w-full items-center justify-center gap-2 rounded-xl bg-violet-600 px-6 py-3.5 text-base font-semibold text-white shadow-md transition hover:bg-violet-700 disabled:cursor-not-allowed disabled:opacity-50"
+        className="btn-primary mt-7 w-full overflow-hidden px-6 py-4 text-base"
       >
-        {isExporting ? (
-          <>
-            <span className="h-4 w-4 animate-spin rounded-full border-2 border-white/40 border-t-white" />
-            Processing… {Math.round(progress * 100)}%
-          </>
-        ) : (
-          <>Cut &amp; Download {format.toUpperCase()}</>
-        )}
-      </button>
-
-      {isExporting && (
-        <div className="mt-3 h-1.5 w-full overflow-hidden rounded-full bg-violet-100 dark:bg-zinc-800">
-          <div
-            className="h-full rounded-full bg-violet-600 transition-all"
+        {isExporting && (
+          <span
+            aria-hidden
+            className="absolute inset-y-0 left-0 bg-white/15 transition-all"
             style={{ width: `${Math.round(progress * 100)}%` }}
           />
-        </div>
-      )}
+        )}
+        <span className="relative flex items-center gap-2">
+          {isExporting ? (
+            <>
+              <span className="h-4 w-4 animate-spin rounded-full border-2 border-white/40 border-t-white" />
+              Processing… {Math.round(progress * 100)}%
+            </>
+          ) : (
+            <>
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} className="h-5 w-5">
+                <path strokeLinecap="round" strokeLinejoin="round" d="M3 16.5v2.25A2.25 2.25 0 0 0 5.25 21h13.5A2.25 2.25 0 0 0 21 18.75V16.5M16.5 12 12 16.5m0 0L7.5 12m4.5 4.5V3" />
+              </svg>
+              Cut &amp; Download {format.toUpperCase()}
+            </>
+          )}
+        </span>
+      </button>
     </div>
   );
 };
