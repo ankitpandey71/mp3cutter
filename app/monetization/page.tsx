@@ -1,7 +1,11 @@
-export const metadata = {
-  title: "How We Earn Money — SnipAudio",
-  description: "A transparent look at how SnipAudio funds free, private audio tools.",
-};
+import { pageMetadata } from "@/lib/site";
+
+export const metadata = pageMetadata({
+  title: "How We Earn Money",
+  description:
+    "A transparent look at how SnipAudio funds free, private audio tools through ads, donations and sponsorships.",
+  path: "/monetization",
+});
 
 const streams = [
   {

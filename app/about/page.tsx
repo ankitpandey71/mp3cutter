@@ -1,7 +1,11 @@
-export const metadata = {
-  title: "About — SnipAudio",
-  description: "Learn how SnipAudio's free browser-based MP3 cutter works.",
-};
+import { pageMetadata } from "@/lib/site";
+
+export const metadata = pageMetadata({
+  title: "About",
+  description:
+    "Learn how SnipAudio's free, browser-based MP3 cutter trims audio privately on your own device — no uploads, no signup, no watermark.",
+  path: "/about",
+});
 
 const AboutPage = () => {
   return (

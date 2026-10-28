@@ -1,5 +1,6 @@
 import MP3Cutter from "@/components/cutter/MP3Cutter";
 import AdSlot from "@/components/ads/AdSlot";
+import { faqs, siteConfig } from "@/lib/site";
 
 const features = [
   {
@@ -26,9 +27,53 @@ const steps = [
   { title: "Download", body: "Export as MP3 or WAV in one click." },
 ];
 
+const jsonLd = {
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "WebSite",
+      "@id": `${siteConfig.url}/#website`,
+      name: siteConfig.name,
+      url: siteConfig.url,
+      description: siteConfig.description,
+      inLanguage: "en",
+    },
+    {
+      "@type": "WebApplication",
+      "@id": `${siteConfig.url}/#app`,
+      name: siteConfig.name,
+      url: siteConfig.url,
+      description: siteConfig.description,
+      applicationCategory: "MultimediaApplication",
+      operatingSystem: "Any (runs in a web browser)",
+      browserRequirements: "Requires JavaScript and the Web Audio API",
+      isAccessibleForFree: true,
+      offers: { "@type": "Offer", price: "0", priceCurrency: "USD" },
+      featureList: [
+        "Cut and trim MP3, WAV, OGG, M4A, AAC and FLAC",
+        "Fade in and fade out",
+        "Export to MP3 (128–320 kbps) or WAV",
+        "Processes audio locally — no uploads",
+      ],
+    },
+    {
+      "@type": "FAQPage",
+      mainEntity: faqs.map((faq) => ({
+        "@type": "Question",
+        name: faq.question,
+        acceptedAnswer: { "@type": "Answer", text: faq.answer },
+      })),
+    },
+  ],
+};
+
 const Home = () => {
   return (
     <div className="flex flex-1 flex-col items-center gap-16 px-4 pt-14 pb-10 sm:px-6 sm:pt-20">
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd).replace(/</g, "\\u003c") }}
+      />
       <div className="animate-float-up max-w-3xl text-center">
         <span className="inline-flex items-center gap-2 rounded-full border border-violet-500/20 bg-violet-500/10 px-3 py-1 text-xs font-medium text-violet-700 dark:text-violet-300">
           <span className="relative flex h-2 w-2">
@@ -83,6 +128,25 @@ const Home = () => {
             </li>
           ))}
         </ol>
+      </section>
+
+      <section className="w-full max-w-3xl" aria-labelledby="faq-heading">
+        <h2 id="faq-heading" className="text-center text-2xl font-semibold tracking-tight text-zinc-900 dark:text-white">
+          Frequently asked questions
+        </h2>
+        <div className="mt-8 flex flex-col gap-3">
+          {faqs.map((faq) => (
+            <details key={faq.question} className="glass-card group rounded-2xl! px-5 py-4">
+              <summary className="flex cursor-pointer list-none items-center justify-between gap-4 font-medium text-zinc-900 dark:text-white [&::-webkit-details-marker]:hidden">
+                <h3>{faq.question}</h3>
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} className="h-4 w-4 shrink-0 text-zinc-400 transition group-open:rotate-45">
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
+                </svg>
+              </summary>
+              <p className="mt-3 text-sm leading-relaxed text-zinc-600 dark:text-zinc-400">{faq.answer}</p>
+            </details>
+          ))}
+        </div>
       </section>
     </div>
   );

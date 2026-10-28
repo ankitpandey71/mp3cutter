@@ -1,7 +1,8 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import Navbar from "@/components/layout/Navbar";
 import Footer from "@/components/layout/Footer";
+import { siteConfig } from "@/lib/site";
 import "./globals.css";
 
 const geistSans = Geist({
@@ -15,9 +16,42 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "SnipAudio — Free Online MP3 Cutter & Trimmer",
-  description:
-    "Cut, trim, and export MP3, WAV, OGG, and M4A audio files for free, right in your browser. No uploads, no signup, no watermark.",
+  metadataBase: new URL(siteConfig.url),
+  title: {
+    default: siteConfig.title,
+    template: `%s | ${siteConfig.name}`,
+  },
+  description: siteConfig.description,
+  keywords: siteConfig.keywords,
+  applicationName: siteConfig.name,
+  category: "multimedia",
+  alternates: { canonical: "/" },
+  openGraph: {
+    type: "website",
+    siteName: siteConfig.name,
+    title: siteConfig.title,
+    description: siteConfig.description,
+    url: "/",
+    locale: "en_US",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: siteConfig.title,
+    description: siteConfig.description,
+  },
+  robots: {
+    index: true,
+    follow: true,
+    googleBot: { index: true, follow: true, "max-image-preview": "large" },
+  },
+  formatDetection: { telephone: false },
+};
+
+export const viewport: Viewport = {
+  themeColor: [
+    { media: "(prefers-color-scheme: light)", color: "#fafafb" },
+    { media: "(prefers-color-scheme: dark)", color: "#07060b" },
+  ],
 };
 
 const RootLayout = ({ children }: LayoutProps<"/">) => {

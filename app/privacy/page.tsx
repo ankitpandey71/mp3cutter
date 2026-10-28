@@ -1,7 +1,11 @@
-export const metadata = {
-  title: "Privacy Policy — SnipAudio",
-  description: "SnipAudio processes all audio locally in your browser. Learn what data, if any, we collect.",
-};
+import { pageMetadata } from "@/lib/site";
+
+export const metadata = pageMetadata({
+  title: "Privacy Policy",
+  description:
+    "SnipAudio processes all audio locally in your browser. Learn what data, if any, we collect and which third parties are involved.",
+  path: "/privacy",
+});
 
 const PrivacyPage = () => {
   return (

@@ -16,7 +16,7 @@ const Navbar = () => {
           </span>
         </Link>
 
-        <nav className="flex items-center gap-1">
+        <nav aria-label="Main" className="flex items-center gap-1">
           <NavLinks />
           <a
             href="#donate"
