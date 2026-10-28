@@ -11,6 +11,12 @@ interface ExportPanelProps {
   isExporting: boolean;
   progress: number;
   onExport: (format: ExportFormat, bitrate: number, fadeIn: number, fadeOut: number) => void;
+  defaultFadeIn?: number;
+  defaultFadeOut?: number;
+  actionLabel?: string;
+  showFades?: boolean;
+  /** Upper bound for each fade slider, in seconds */
+  fadeLimit?: number;
 }
 
 const BITRATES = [128, 192, 256, 320];
@@ -22,14 +28,19 @@ const ExportPanel = ({
   isExporting,
   progress,
   onExport,
+  defaultFadeIn = 0,
+  defaultFadeOut = 0,
+  actionLabel = "Cut & Download",
+  showFades = true,
+  fadeLimit = 5,
 }: ExportPanelProps) => {
   const [format, setFormat] = useState<ExportFormat>("mp3");
   const [bitrate, setBitrate] = useState(192);
-  const [fadeIn, setFadeIn] = useState(0);
-  const [fadeOut, setFadeOut] = useState(0);
+  const [fadeIn, setFadeIn] = useState(defaultFadeIn);
+  const [fadeOut, setFadeOut] = useState(defaultFadeOut);
 
   const duration = Math.max(0, end - start);
-  const maxFade = Math.min(5, duration / 2);
+  const maxFade = showFades ? Math.min(fadeLimit, duration / 2) : 0;
   const fillOf = (value: number): CSSProperties =>
     ({ "--fill": `${maxFade > 0 ? (value / maxFade) * 100 : 0}%` }) as CSSProperties;
   const labelClass =
@@ -95,42 +106,46 @@ const ExportPanel = ({
           </div>
         </div>
 
-        <label className="block">
-          <span className={labelClass}>
-            Fade in <span className="font-mono normal-case tracking-normal text-zinc-900 dark:text-white">{fadeIn.toFixed(1)}s</span>
-          </span>
-          <input
-            type="range"
-            min={0}
-            max={maxFade}
-            step={0.1}
-            value={fadeIn}
-            onChange={(e) => setFadeIn(Number(e.target.value))}
-            className="range-premium w-full"
-            style={fillOf(fadeIn)}
-          />
-        </label>
+        {showFades && (
+          <>
+            <label className="block">
+              <span className={labelClass}>
+                Fade in <span className="font-mono normal-case tracking-normal text-zinc-900 dark:text-white">{fadeIn.toFixed(1)}s</span>
+              </span>
+              <input
+                type="range"
+                min={0}
+                max={maxFade}
+                step={0.1}
+                value={fadeIn}
+                onChange={(e) => setFadeIn(Number(e.target.value))}
+                className="range-premium w-full"
+                style={fillOf(fadeIn)}
+              />
+            </label>
 
-        <label className="block">
-          <span className={labelClass}>
-            Fade out <span className="font-mono normal-case tracking-normal text-zinc-900 dark:text-white">{fadeOut.toFixed(1)}s</span>
-          </span>
-          <input
-            type="range"
-            min={0}
-            max={maxFade}
-            step={0.1}
-            value={fadeOut}
-            onChange={(e) => setFadeOut(Number(e.target.value))}
-            className="range-premium w-full"
-            style={fillOf(fadeOut)}
-          />
-        </label>
+            <label className="block">
+              <span className={labelClass}>
+                Fade out <span className="font-mono normal-case tracking-normal text-zinc-900 dark:text-white">{fadeOut.toFixed(1)}s</span>
+              </span>
+              <input
+                type="range"
+                min={0}
+                max={maxFade}
+                step={0.1}
+                value={fadeOut}
+                onChange={(e) => setFadeOut(Number(e.target.value))}
+                className="range-premium w-full"
+                style={fillOf(fadeOut)}
+              />
+            </label>
+          </>
+        )}
       </div>
 
       <button
         disabled={isExporting || duration <= 0}
-        onClick={() => onExport(format, bitrate, fadeIn, fadeOut)}
+        onClick={() => onExport(format, bitrate, Math.min(fadeIn, maxFade), Math.min(fadeOut, maxFade))}
         className="btn-primary mt-7 w-full overflow-hidden px-6 py-4 text-base"
       >
         {isExporting && (
@@ -151,7 +166,7 @@ const ExportPanel = ({
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} className="h-5 w-5">
                 <path strokeLinecap="round" strokeLinejoin="round" d="M3 16.5v2.25A2.25 2.25 0 0 0 5.25 21h13.5A2.25 2.25 0 0 0 21 18.75V16.5M16.5 12 12 16.5m0 0L7.5 12m4.5 4.5V3" />
               </svg>
-              Cut &amp; Download {format.toUpperCase()}
+              {actionLabel} {format.toUpperCase()}
             </>
           )}
         </span>

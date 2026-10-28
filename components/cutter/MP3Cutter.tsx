@@ -1,9 +1,10 @@
 "use client";
 
-import { useCallback, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import FileDropzone from "./FileDropzone";
 import WaveformEditor from "./WaveformEditor";
 import ExportPanel from "./ExportPanel";
+import FileInfoCard from "./FileInfoCard";
 import AdSlot from "@/components/ads/AdSlot";
 import {
   decodeAudioFile,
@@ -11,11 +12,24 @@ import {
   sliceAudioBuffer,
 } from "@/lib/audio/decode";
 import { exportAudioBuffer, type ExportFormat } from "@/lib/audio/encode";
-import { formatBytes, formatTime } from "@/lib/utils/formatTime";
+import { baseName, downloadBlob } from "@/lib/utils/download";
 
-const baseName = (name: string): string => name.replace(/\.[^/.]+$/, "");
+export interface CutterPreset {
+  /** Initial selection length in seconds (defaults to the whole file) */
+  selectionLength?: number;
+  /** Longest selection the user can drag to, in seconds */
+  maxSelection?: number;
+  fadeIn?: number;
+  fadeOut?: number;
+  /** Appended to the downloaded file name, e.g. "ringtone" → song-ringtone.mp3 */
+  fileSuffix?: string;
+}
 
-const MP3Cutter = () => {
+interface MP3CutterProps {
+  preset?: CutterPreset;
+}
+
+const MP3Cutter = ({ preset = {} }: MP3CutterProps) => {
   const [file, setFile] = useState<File | null>(null);
   const [audioBuffer, setAudioBuffer] = useState<AudioBuffer | null>(null);
   const [range, setRange] = useState({ start: 0, end: 0 });
@@ -25,7 +39,9 @@ const MP3Cutter = () => {
   const [progress, setProgress] = useState(0);
   const [error, setError] = useState<string | null>(null);
   const rangeRef = useRef(range);
-  rangeRef.current = range;
+  useEffect(() => {
+    rangeRef.current = range;
+  }, [range]);
 
   const handleFileSelected = useCallback(async (selected: File) => {
     setError(null);
@@ -64,21 +80,14 @@ const MP3Cutter = () => {
           setProgress(p)
         );
 
-        const url = URL.createObjectURL(blob);
-        const a = document.createElement("a");
-        a.href = url;
-        a.download = `${baseName(file.name)}-cut.${format}`;
-        document.body.appendChild(a);
-        a.click();
-        a.remove();
-        URL.revokeObjectURL(url);
+        downloadBlob(blob, `${baseName(file.name)}-${preset.fileSuffix ?? "cut"}.${format}`);
       } catch {
         setError("Something went wrong while exporting. Please try again.");
       } finally {
         setIsExporting(false);
       }
     },
-    [audioBuffer, file]
+    [audioBuffer, file, preset.fileSuffix]
   );
 
   const errorBanner = error && (
@@ -96,7 +105,7 @@ const MP3Cutter = () => {
   if (!file) {
     return (
       <div className="mx-auto flex w-full max-w-3xl flex-col gap-6">
-        <FileDropzone onFileSelected={handleFileSelected} isLoading={isDecoding} />
+        <FileDropzone onFilesSelected={(files) => handleFileSelected(files[0])} isLoading={isDecoding} />
         {errorBanner}
         <AdSlot slot="cutter-empty-state" />
       </div>
@@ -106,41 +115,15 @@ const MP3Cutter = () => {
   return (
     <div className="mx-auto grid w-full max-w-6xl gap-6 lg:grid-cols-[minmax(0,1fr)_280px]">
       <div className="flex flex-col gap-5">
-        <div className="glass-card flex items-center gap-4 rounded-2xl! p-4">
-          <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-linear-to-br from-violet-500 to-fuchsia-600 text-white shadow-lg shadow-violet-600/25">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.8} className="h-5 w-5">
-              <path strokeLinecap="round" strokeLinejoin="round" d="m9 9 10.5-3m0 6.553v3.75a2.25 2.25 0 0 1-1.632 2.163l-1.32.377a1.803 1.803 0 1 1-.99-3.467l2.31-.66a2.25 2.25 0 0 0 1.632-2.163Zm0 0V2.25L9 5.25v10.303m0 0v3.75a2.25 2.25 0 0 1-1.632 2.163l-1.32.377a1.803 1.803 0 0 1-.99-3.467l2.31-.66A2.25 2.25 0 0 0 9 15.553Z" />
-            </svg>
-          </span>
-          <div className="min-w-0 flex-1">
-            <p className="truncate text-sm font-semibold text-zinc-900 dark:text-white">
-              {file.name}
-            </p>
-            <p className="mt-0.5 flex gap-2 font-mono text-xs text-zinc-500 dark:text-zinc-400">
-              <span>{formatBytes(file.size)}</span>
-              {audioBuffer && (
-                <>
-                  <span className="text-zinc-300 dark:text-zinc-600">·</span>
-                  <span>{formatTime(audioBuffer.duration)}</span>
-                  <span className="text-zinc-300 dark:text-zinc-600">·</span>
-                  <span>{(audioBuffer.sampleRate / 1000).toFixed(1)} kHz</span>
-                </>
-              )}
-            </p>
-          </div>
-          <button
-            onClick={handleReset}
-            className="shrink-0 rounded-xl border border-zinc-900/10 px-3 py-2 text-xs font-medium text-zinc-600 transition hover:border-red-500/30 hover:bg-red-500/5 hover:text-red-600 dark:border-white/10 dark:text-zinc-300 dark:hover:text-red-400"
-          >
-            Change file
-          </button>
-        </div>
+        <FileInfoCard file={file} buffer={audioBuffer} onReset={handleReset} />
 
         <WaveformEditor
           file={file}
           onRegionChange={(start, end) => setRange({ start, end })}
           onDurationReady={(dur) => setRange({ start: 0, end: dur })}
           onRestart={() => setPlaybackKey((k) => k + 1)}
+          selectionLength={preset.selectionLength}
+          maxSelection={preset.maxSelection}
           playbackKey={playbackKey}
         />
 
@@ -152,6 +135,8 @@ const MP3Cutter = () => {
             isExporting={isExporting}
             progress={progress}
             onExport={handleExport}
+            defaultFadeIn={preset.fadeIn}
+            defaultFadeOut={preset.fadeOut}
           />
         )}
 

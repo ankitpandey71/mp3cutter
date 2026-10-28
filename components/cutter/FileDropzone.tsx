@@ -2,48 +2,58 @@
 
 import { useCallback, useRef, useState } from "react";
 
+export type MediaKind = "audio" | "video";
+
 interface FileDropzoneProps {
-  onFileSelected: (file: File) => void;
+  onFilesSelected: (files: File[]) => void;
+  multiple?: boolean;
   isLoading?: boolean;
+  kind?: MediaKind;
 }
 
-const ACCEPTED_TYPES = [
-  "audio/mpeg",
-  "audio/mp3",
-  "audio/wav",
-  "audio/x-wav",
-  "audio/ogg",
-  "audio/mp4",
-  "audio/m4a",
-  "audio/x-m4a",
-  "audio/aac",
-  "audio/flac",
-  "audio/webm",
-];
-
-const FORMATS = ["MP3", "WAV", "OGG", "M4A", "AAC", "FLAC"];
+const MEDIA = {
+  audio: {
+    pattern: /\.(mp3|wav|ogg|m4a|aac|flac|webm)$/i,
+    mimePrefix: "audio/",
+    accept: "audio/*,.mp3,.wav,.ogg,.m4a,.aac,.flac",
+    formats: ["MP3", "WAV", "OGG", "M4A", "AAC", "FLAC"],
+    noun: "audio",
+  },
+  video: {
+    pattern: /\.(mp4|m4v|mov|webm|mkv)$/i,
+    mimePrefix: "video/",
+    accept: "video/*,.mp4,.m4v,.mov,.webm,.mkv",
+    formats: ["MP4", "MOV", "WEBM", "MKV", "M4V"],
+    noun: "video",
+  },
+};
 
 // Decorative equalizer bar heights
 const BARS = [40, 70, 55, 90, 65, 100, 75, 50, 85, 60, 95, 45, 70, 55, 80];
 
-const FileDropzone = ({ onFileSelected, isLoading = false }: FileDropzoneProps) => {
+const FileDropzone = ({
+  onFilesSelected,
+  multiple = false,
+  isLoading = false,
+  kind = "audio",
+}: FileDropzoneProps) => {
   const [isDragging, setIsDragging] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
-
-  const isAcceptable = (file: File) =>
-    ACCEPTED_TYPES.includes(file.type) || /\.(mp3|wav|ogg|m4a|aac|flac|webm)$/i.test(file.name);
+  const media = MEDIA[kind];
 
   const handleFiles = useCallback(
     (files: FileList | null) => {
       if (!files || files.length === 0) return;
-      const file = files[0];
-      if (!isAcceptable(file)) {
-        alert("Please choose an audio file (MP3, WAV, OGG, M4A, AAC, FLAC).");
-        return;
+      const picked = multiple ? Array.from(files) : [files[0]];
+      const accepted = picked.filter(
+        (file) => file.type.startsWith(media.mimePrefix) || media.pattern.test(file.name)
+      );
+      if (accepted.length < picked.length) {
+        alert(`Please choose ${media.noun} files only (${media.formats.join(", ")}).`);
       }
-      onFileSelected(file);
+      if (accepted.length > 0) onFilesSelected(accepted);
     },
-    [onFileSelected]
+    [onFilesSelected, multiple, media]
   );
 
   return (
@@ -82,9 +92,13 @@ const FileDropzone = ({ onFileSelected, isLoading = false }: FileDropzoneProps) 
       <input
         ref={inputRef}
         type="file"
-        accept="audio/*,.mp3,.wav,.ogg,.m4a,.aac,.flac"
+        accept={media.accept}
+        multiple={multiple}
         className="hidden"
-        onChange={(e) => handleFiles(e.target.files)}
+        onChange={(e) => {
+          handleFiles(e.target.files);
+          e.target.value = "";
+        }}
       />
 
       <div aria-hidden className="relative flex h-16 items-end gap-1">
@@ -101,7 +115,7 @@ const FileDropzone = ({ onFileSelected, isLoading = false }: FileDropzoneProps) 
 
       <div className="relative">
         <p className="text-xl font-semibold tracking-tight text-zinc-900 dark:text-white">
-          {isLoading ? "Decoding your audio…" : isDragging ? "Release to load" : "Drop your audio file here"}
+          {isLoading ? `Decoding your ${media.noun}…` : isDragging ? "Release to load" : `Drop your ${media.noun} ${multiple ? "files" : "file"} here`}
         </p>
         <p className="mt-2 text-sm text-zinc-500 dark:text-zinc-400">
           or{" "}
@@ -112,7 +126,7 @@ const FileDropzone = ({ onFileSelected, isLoading = false }: FileDropzoneProps) 
       </div>
 
       <div className="relative flex flex-wrap justify-center gap-1.5">
-        {FORMATS.map((f) => (
+        {media.formats.map((f) => (
           <span
             key={f}
             className="rounded-md border border-zinc-900/10 bg-white/60 px-2 py-0.5 font-mono text-[11px] text-zinc-500 dark:border-white/10 dark:bg-white/5 dark:text-zinc-400"

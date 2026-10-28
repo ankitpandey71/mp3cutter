@@ -1,9 +1,10 @@
 import Link from "next/link";
+import { tools } from "@/lib/tools";
 
 const Footer = () => {
   return (
     <footer className="mt-16 border-t border-zinc-900/5 py-12 text-sm text-zinc-500 dark:border-white/5 dark:text-zinc-400">
-      <div className="mx-auto grid max-w-6xl gap-10 px-4 sm:grid-cols-[1.5fr_1fr_1fr] sm:px-6">
+      <div className="mx-auto grid max-w-6xl gap-10 px-4 sm:grid-cols-2 lg:grid-cols-[1.5fr_1fr_1fr_1fr] sm:px-6">
         <div>
           <p className="text-base font-semibold text-zinc-900 dark:text-white">
             Snip<span className="text-gradient">Audio</span>
@@ -19,9 +20,18 @@ const Footer = () => {
         </div>
 
         <div>
+          <p className="mb-3 text-xs font-semibold uppercase tracking-wider text-zinc-900 dark:text-zinc-200">Tools</p>
+          <ul className="space-y-2">
+            {tools.map((tool) => (
+              <li key={tool.path}><Link href={tool.path} className="transition hover:text-violet-600 dark:hover:text-violet-400">{tool.name}</Link></li>
+            ))}
+            <li><Link href="/tools" className="transition hover:text-violet-600 dark:hover:text-violet-400">All tools →</Link></li>
+          </ul>
+        </div>
+
+        <div>
           <p className="mb-3 text-xs font-semibold uppercase tracking-wider text-zinc-900 dark:text-zinc-200">Site</p>
           <ul className="space-y-2">
-            <li><Link href="/" className="transition hover:text-violet-600 dark:hover:text-violet-400">MP3 Cutter</Link></li>
             <li><Link href="/about" className="transition hover:text-violet-600 dark:hover:text-violet-400">About</Link></li>
             <li><Link href="/privacy" className="transition hover:text-violet-600 dark:hover:text-violet-400">Privacy Policy</Link></li>
           </ul>

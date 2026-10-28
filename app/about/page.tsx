@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { pageMetadata } from "@/lib/site";
 
 export const metadata = pageMetadata({
@@ -35,9 +36,9 @@ const AboutPage = () => {
         Most online audio cutters require an upload-wait-download cycle and
         bury the tool behind ads or paywalls. We wanted something instant,
         transparent about how it earns money (see our{" "}
-        <a href="/monetization" className="text-violet-600 hover:underline">
+        <Link href="/monetization" className="text-violet-600 hover:underline">
           Support Us
-        </a>{" "}
+        </Link>{" "}
         page), and safe enough to use with sensitive recordings.
       </p>
     </div>

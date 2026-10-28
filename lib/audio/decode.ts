@@ -66,3 +66,30 @@ export const getFadedBuffer = (
   }
   return result;
 };
+
+/**
+ * Concatenates buffers end to end with optional silence between them.
+ * All buffers are decoded by the shared AudioContext, so they share its sample rate;
+ * mono inputs are copied to every output channel.
+ */
+export const concatAudioBuffers = (buffers: AudioBuffer[], gapSec = 0): AudioBuffer => {
+  const ctx = getAudioContext();
+  const { sampleRate } = buffers[0];
+  const numChannels = Math.max(...buffers.map((b) => b.numberOfChannels));
+  const gapSamples = Math.floor(gapSec * sampleRate);
+  const totalLength =
+    buffers.reduce((sum, b) => sum + b.length, 0) + gapSamples * (buffers.length - 1);
+
+  const result = ctx.createBuffer(numChannels, totalLength, sampleRate);
+
+  let offset = 0;
+  for (const buffer of buffers) {
+    for (let channel = 0; channel < numChannels; channel++) {
+      const source = buffer.getChannelData(Math.min(channel, buffer.numberOfChannels - 1));
+      result.getChannelData(channel).set(source, offset);
+    }
+    offset += buffer.length + gapSamples;
+  }
+
+  return result;
+};

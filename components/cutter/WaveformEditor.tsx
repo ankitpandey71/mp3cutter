@@ -12,6 +12,8 @@ interface WaveformEditorProps {
   onReady?: () => void;
   onRestart: () => void;
   playbackKey: number;
+  selectionLength?: number;
+  maxSelection?: number;
 }
 
 const WaveformEditor = ({
@@ -21,6 +23,8 @@ const WaveformEditor = ({
   onReady,
   onRestart,
   playbackKey,
+  selectionLength,
+  maxSelection,
 }: WaveformEditorProps) => {
   const containerRef = useRef<HTMLDivElement>(null);
   const waveSurferRef = useRef<WaveSurfer | null>(null);
@@ -60,7 +64,8 @@ const WaveformEditor = ({
       onDurationReady(dur);
       const region = regions.addRegion({
         start: 0,
-        end: dur,
+        end: Math.min(dur, selectionLength ?? dur, maxSelection ?? dur),
+        maxLength: maxSelection,
         color: "rgba(139, 92, 246, 0.12)",
         drag: true,
         resize: true,

@@ -1,19 +1,20 @@
 import type { MetadataRoute } from "next";
 import { siteConfig } from "@/lib/site";
+import { tools } from "@/lib/tools";
 
-const routes = [
-  { path: "", priority: 1, changeFrequency: "weekly" },
-  { path: "/about", priority: 0.6, changeFrequency: "monthly" },
-  { path: "/monetization", priority: 0.4, changeFrequency: "monthly" },
-  { path: "/privacy", priority: 0.3, changeFrequency: "yearly" },
-] as const;
+const pages: MetadataRoute.Sitemap = [
+  ...tools.map((tool) => ({
+    url: `${siteConfig.url}${tool.path === "/" ? "" : tool.path}`,
+    changeFrequency: "weekly" as const,
+    priority: tool.path === "/" ? 1 : 0.9,
+  })),
+  { url: `${siteConfig.url}/tools`, changeFrequency: "weekly", priority: 0.7 },
+  { url: `${siteConfig.url}/about`, changeFrequency: "monthly", priority: 0.5 },
+  { url: `${siteConfig.url}/monetization`, changeFrequency: "monthly", priority: 0.3 },
+  { url: `${siteConfig.url}/privacy`, changeFrequency: "yearly", priority: 0.3 },
+];
 
 const sitemap = (): MetadataRoute.Sitemap =>
-  routes.map((route) => ({
-    url: `${siteConfig.url}${route.path}`,
-    lastModified: new Date(),
-    changeFrequency: route.changeFrequency,
-    priority: route.priority,
-  }));
+  pages.map((page) => ({ ...page, lastModified: new Date() }));
 
 export default sitemap;

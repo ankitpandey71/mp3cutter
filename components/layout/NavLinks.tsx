@@ -4,9 +4,10 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 
 const links = [
-  { href: "/", label: "Cutter" },
-  { href: "/about", label: "About" },
-  { href: "/monetization", label: "Funding" },
+  { href: "/", label: "Cutter", hideOnMobile: false },
+  { href: "/tools", label: "All tools", hideOnMobile: false },
+  { href: "/about", label: "About", hideOnMobile: true },
+  { href: "/monetization", label: "Funding", hideOnMobile: true },
 ];
 
 const NavLinks = () => {
@@ -21,7 +22,7 @@ const NavLinks = () => {
             key={link.href}
             href={link.href}
             aria-current={isActive ? "page" : undefined}
-            className={`rounded-xl px-3 py-2 text-sm font-medium transition ${
+            className={`rounded-xl px-3 py-2 text-sm font-medium transition ${link.hideOnMobile ? "hidden md:block" : ""} ${
               isActive
                 ? "bg-violet-500/10 text-violet-700 dark:bg-white/10 dark:text-white"
                 : "text-zinc-600 hover:bg-zinc-900/5 hover:text-zinc-900 dark:text-zinc-400 dark:hover:bg-white/5 dark:hover:text-white"

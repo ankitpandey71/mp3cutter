@@ -28,46 +28,21 @@ export const siteConfig = {
   ],
 };
 
-export const faqs = [
-  {
-    question: "Is SnipAudio really free?",
-    answer:
-      "Yes. Cutting, fading and exporting are completely free with no watermark, no signup and no limit on the number of files.",
-  },
-  {
-    question: "Are my audio files uploaded to a server?",
-    answer:
-      "No. Your file is decoded, trimmed and encoded entirely inside your browser using the Web Audio API. It never leaves your device.",
-  },
-  {
-    question: "Which audio formats can I cut?",
-    answer:
-      "You can open MP3, WAV, OGG, M4A, AAC and FLAC files (anything your browser can decode), and export the result as MP3 (128–320 kbps) or lossless WAV.",
-  },
-  {
-    question: "How do I make a ringtone from a song?",
-    answer:
-      "Drop the song in, drag the waveform handles around the 20–30 second part you want, add a short fade in and fade out, then click “Cut & Download”.",
-  },
-  {
-    question: "Does it work on phones and tablets?",
-    answer:
-      "Yes. SnipAudio runs in any modern browser on Android, iPhone, iPad, Windows, macOS and Linux — there is nothing to install.",
-  },
-];
-
 // Child segments replace (not merge) openGraph/twitter, so each page rebuilds them in full
 export const pageMetadata = ({
   title,
   description,
   path,
+  keywords,
 }: {
   title: string;
   description: string;
   path: string;
+  keywords?: string[];
 }): Metadata => ({
   title,
   description,
+  keywords,
   alternates: { canonical: path },
   openGraph: {
     type: "website",
