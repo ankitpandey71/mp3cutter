@@ -257,3 +257,89 @@ export const removeSilence = (
   }
   return result;
 };
+
+export type InsertMode = "insert" | "overlay";
+
+export interface InsertOptions {
+  mode: InsertMode;
+  /** Volume change applied to the inserted clip */
+  clipGainDb?: number;
+  /** Overlay only: lower the song by this many dB while the clip plays (0 = off) */
+  duckDb?: number;
+}
+
+/**
+ * Places `clip` into `song` at `atSec`.
+ * insert: the song is split at atSec and resumes after the clip (short ramps hide the joins).
+ * overlay: the clip is mixed on top, optionally ducking the song underneath.
+ */
+export const insertAudio = (
+  song: AudioBuffer,
+  clip: AudioBuffer,
+  atSec: number,
+  { mode, clipGainDb = 0, duckDb = 0 }: InsertOptions
+): AudioBuffer => {
+  const { sampleRate } = song;
+  const at = Math.max(0, Math.min(song.length, Math.round(atSec * sampleRate)));
+  const clipGain = Math.pow(10, clipGainDb / 20);
+  const channels = Math.max(song.numberOfChannels, clip.numberOfChannels);
+  const songCh = (ch: number) => song.getChannelData(Math.min(ch, song.numberOfChannels - 1));
+  const clipCh = (ch: number) => clip.getChannelData(Math.min(ch, clip.numberOfChannels - 1));
+  const ramp = Math.floor(sampleRate * 0.01);
+
+  if (mode === "insert") {
+    const result = createLike(song, song.length + clip.length, channels);
+    for (let ch = 0; ch < channels; ch++) {
+      const s = songCh(ch);
+      const c = clipCh(ch);
+      const out = result.getChannelData(ch);
+      out.set(s.subarray(0, at), 0);
+      for (let i = 0; i < c.length; i++) out[at + i] = c[i] * clipGain;
+      out.set(s.subarray(at), at + clip.length);
+
+      // 10 ms ramps on both sides of each join to avoid clicks
+      const fadeOut = (end: number) => {
+        for (let i = 0; i < ramp && end - 1 - i >= 0; i++) out[end - 1 - i] *= i / ramp;
+      };
+      const fadeIn = (start: number) => {
+        for (let i = 0; i < ramp && start + i < out.length; i++) out[start + i] *= i / ramp;
+      };
+      if (at > 0) {
+        fadeOut(at);
+        fadeIn(at);
+      }
+      if (at < song.length) {
+        fadeOut(at + clip.length);
+        fadeIn(at + clip.length);
+      }
+      for (let i = 0; i < out.length; i++) out[i] = softLimit(out[i]);
+    }
+    return result;
+  }
+
+  const length = Math.max(song.length, at + clip.length);
+  const result = createLike(song, length, channels);
+  const duckGain = Math.pow(10, -Math.abs(duckDb) / 20);
+  const duckRamp = Math.floor(sampleRate * 0.25);
+  const clipEnd = at + clip.length;
+
+  for (let ch = 0; ch < channels; ch++) {
+    const s = songCh(ch);
+    const c = clipCh(ch);
+    const out = result.getChannelData(ch);
+    for (let i = 0; i < length; i++) {
+      let songSample = s[i] ?? 0;
+      if (duckDb !== 0) {
+        // Smoothly dip the song from duckRamp before the clip until duckRamp after it
+        let amount = 0;
+        if (i >= at && i < clipEnd) amount = 1;
+        else if (i < at && i >= at - duckRamp) amount = 1 - (at - i) / duckRamp;
+        else if (i >= clipEnd && i < clipEnd + duckRamp) amount = 1 - (i - clipEnd) / duckRamp;
+        songSample *= 1 - amount * (1 - duckGain);
+      }
+      const clipSample = i >= at && i < clipEnd ? c[i - at] * clipGain : 0;
+      out[i] = softLimit(songSample + clipSample);
+    }
+  }
+  return result;
+};

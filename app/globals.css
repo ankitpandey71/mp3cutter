@@ -189,3 +189,19 @@ body::before {
     animation: none;
   }
 }
+
+/* Insert-point marker (a zero-length region) */
+.waveform ::part(marker) {
+  border-left-width: 3px !important;
+  box-shadow: 0 0 12px rgba(232, 121, 249, 0.7);
+}
+
+.waveform ::part(region-content) {
+  margin-left: 4px;
+  border-radius: 6px;
+  background: #c026d3;
+  color: #fff;
+  font-size: 10px;
+  font-weight: 600;
+  white-space: nowrap;
+}

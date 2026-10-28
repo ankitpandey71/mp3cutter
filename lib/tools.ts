@@ -61,6 +61,7 @@ export const icons = {
     "M17.25 9.75 19.5 12m0 0 2.25 2.25M19.5 12l2.25-2.25M19.5 12l-2.25 2.25m-10.5-6 4.72-4.72a.75.75 0 0 1 1.28.53v15.88a.75.75 0 0 1-1.28.53l-4.72-4.72H4.51c-.88 0-1.704-.507-1.938-1.354A9.009 9.009 0 0 1 2.25 12c0-.83.112-1.633.322-2.396C2.806 8.756 3.63 8.25 4.51 8.25H6.75Z",
   trend: "M2.25 18 9 11.25l4.306 4.306a11.95 11.95 0 0 1 5.814-5.518l2.74-1.22m0 0-5.94-2.281m5.94 2.28-2.28 5.941",
   uturn: "M9 15 3 9m0 0 6-6M3 9h12a6 6 0 0 1 0 12h-3",
+  plus: "M12 9v6m3-3H9m12 0a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z",
   mic: "M12 18.75a6 6 0 0 0 6-6v-1.5m-6 7.5a6 6 0 0 1-6-6v-1.5m6 7.5v3.75m-3.75 0h7.5M12 15.75a3 3 0 0 1-3-3V4.5a3 3 0 1 1 6 0v8.25a3 3 0 0 1-3 3Z",
   bell:
     "M14.857 17.082a23.848 23.848 0 0 0 5.454-1.31A8.967 8.967 0 0 1 18 9.75V9A6 6 0 0 0 6 9v.75a8.967 8.967 0 0 1-2.312 6.022c1.733.64 3.56 1.085 5.455 1.31m5.714 0a24.255 24.255 0 0 1-5.714 0m5.714 0a3 3 0 1 1-5.714 0",
@@ -687,11 +688,73 @@ export const voiceRecorder: Tool = {
   ],
 };
 
+export const addAudioToSong: Tool = {
+  path: "/add-audio-to-song",
+  name: "Add Audio to Song",
+  tagline: "Insert a clip, voice-over or sound effect anywhere in a song.",
+  metaTitle: "Add Audio to a Song at Any Point — Insert or Overlay Online Free",
+  description:
+    "Insert audio into the middle of any song, or mix a voice-over or sound effect on top at the exact second you choose. Free, no upload — everything runs in your browser.",
+  keywords: [
+    "add audio to song",
+    "insert audio into mp3",
+    "add voice to song",
+    "add sound effect to audio",
+    "mix two audio files",
+    "overlay audio online",
+    "add voice over to music",
+  ],
+  badge: "Insert or overlay at any second",
+  heading: { before: "Add audio into", highlight: "the middle of any song" },
+  intro:
+    "Pick the exact spot on the waveform, drop in your clip, and choose whether the song pauses for it or it plays on top. Preview the edit, then download.",
+  icon: icons.plus,
+  features: [
+    {
+      title: "Insert or mix on top",
+      body: "Splice the clip in so the song resumes after it, or overlay it like a voice-over.",
+      icon: icons.plus,
+    },
+    {
+      title: "Auto-ducking",
+      body: "When mixing on top, the song dips smoothly so your voice or effect stays clear.",
+      icon: icons.speaker,
+    },
+    privacyFeature,
+  ],
+  stepsTitle: "How to add audio to a song",
+  steps: [
+    { title: "Drop the song", body: "MP3, WAV, M4A or any audio." },
+    { title: "Pick the spot", body: "Click the waveform or nudge to the exact second." },
+    { title: "Add your clip", body: "Choose insert or mix on top, set its volume." },
+    { title: "Preview & download", body: "Hear the edit, then save as MP3 or WAV." },
+  ],
+  faqs: [
+    {
+      question: "What's the difference between Insert and Mix on top?",
+      answer:
+        "Insert splits the song at your chosen point, plays your clip, then continues the song — the result gets longer. Mix on top plays your clip over the song at that point, like a voice-over or sound effect, so the length stays the same (unless the clip runs past the end).",
+    },
+    {
+      question: "How do I choose the exact position?",
+      answer:
+        "Click anywhere on the waveform, drag the pink marker, or use the ±0.1s, ±1s and ±5s buttons to fine-tune. “Hear 3s before the point” plays the lead-up so you can check the timing.",
+    },
+    {
+      question: "Can I add only part of a clip?",
+      answer:
+        "Trim the clip to the part you want with the MP3 Cutter first, then add the trimmed file here.",
+    },
+    privacyFaq,
+  ],
+};
+
 export const tools: Tool[] = [
   mp3Cutter,
   audioConverter,
   videoToMp3,
   audioJoiner,
+  addAudioToSong,
   ringtoneMaker,
   volumeBooster,
   speedChanger,
