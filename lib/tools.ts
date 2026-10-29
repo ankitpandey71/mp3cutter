@@ -63,6 +63,8 @@ export const icons = {
   uturn: "M9 15 3 9m0 0 6-6M3 9h12a6 6 0 0 1 0 12h-3",
   plus: "M12 9v6m3-3H9m12 0a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z",
   mic: "M12 18.75a6 6 0 0 0 6-6v-1.5m-6 7.5a6 6 0 0 1-6-6v-1.5m6 7.5v3.75m-3.75 0h7.5M12 15.75a3 3 0 0 1-3-3V4.5a3 3 0 1 1 6 0v8.25a3 3 0 0 1-3 3Z",
+  wand:
+    "M9.53 16.122a3 3 0 0 0-5.78 1.128 2.25 2.25 0 0 1-2.4 2.245 4.5 4.5 0 0 0 8.4-2.245c0-.399-.078-.78-.22-1.128Zm0 0a15.998 15.998 0 0 0 3.388-1.62m-5.043-.025a15.994 15.994 0 0 1 1.622-3.395m3.42 3.42a15.995 15.995 0 0 0 4.764-4.648l3.876-5.814a1.151 1.151 0 0 0-1.597-1.597L14.146 6.32a15.996 15.996 0 0 0-4.649 4.763m3.42 3.42a6.776 6.776 0 0 0-3.42-3.42",
   bell:
     "M14.857 17.082a23.848 23.848 0 0 0 5.454-1.31A8.967 8.967 0 0 1 18 9.75V9A6 6 0 0 0 6 9v.75a8.967 8.967 0 0 1-2.312 6.022c1.733.64 3.56 1.085 5.455 1.31m5.714 0a24.255 24.255 0 0 1-5.714 0m5.714 0a3 3 0 1 1-5.714 0",
 };
@@ -749,8 +751,76 @@ export const addAudioToSong: Tool = {
   ],
 };
 
+export const autoEnhance: Tool = {
+  path: "/auto-enhance",
+  name: "Auto Enhance",
+  tagline: "Analyse a recording and master it to suit how it was sung and played.",
+  metaTitle: "Auto Enhance Audio — Master Your Song or Vocal Recording Online",
+  description:
+    "Upload a song or a vocal recording and get a mastered version: the tool measures loudness, dynamics, tonal balance, noise and sibilance, then applies only the corrections your recording needs. Runs entirely in your browser.",
+  keywords: [
+    "auto enhance audio",
+    "online audio mastering",
+    "enhance song quality",
+    "improve vocal recording",
+    "ai audio enhancer",
+    "master a song online",
+    "audio enhancer free",
+    "clean up vocal recording",
+  ],
+  badge: "Premium · analysed on your device",
+  heading: { before: "Enhance your recording", highlight: "the way it was recorded" },
+  intro:
+    "Drop in a song you sang over a backing track. We measure the loudness, dynamics, tonal balance, noise floor and sibilance, then build a mastering chain for that specific recording — and show you every decision.",
+  icon: icons.wand,
+  features: [
+    {
+      title: "Measured, not guessed",
+      body: "Gated LUFS loudness, crest factor, spectral balance and a noise floor estimate decide every move.",
+      icon: icons.trend,
+    },
+    {
+      title: "Tuned for voice over music",
+      body: "Detects a human vocal above a backing track and protects it: de-essing, presence lift, centre kept intact.",
+      icon: icons.mic,
+    },
+    privacyFeature,
+  ],
+  stepsTitle: "How to auto-enhance a song",
+  steps: [
+    { title: "Drop your recording", body: "MP3, WAV, M4A, FLAC — vocal, instrumental or a full mix." },
+    { title: "Read the analysis", body: "See the loudness, tonal balance and what we found." },
+    { title: "Preview the result", body: "A/B the before and after, and adjust the strength." },
+    { title: "Download the master", body: "Export as 320 kbps MP3 or lossless WAV." },
+  ],
+  faqs: [
+    {
+      question: "What does auto-enhance actually change?",
+      answer:
+        "Only what the measurements call for. It can remove DC offset and sub-sonic rumble, pull down a noisy background, correct the tonal balance with gentle EQ, de-ess a harsh vocal, even out the dynamics, widen an unusually narrow stereo image, and bring the track to a target loudness through a look-ahead limiter. Every step is listed on screen with the reason it ran — and steps that aren't needed are skipped and reported as skipped.",
+    },
+    {
+      question: "I recorded myself singing over a backing track — will it work?",
+      answer:
+        "That's what it's tuned for. The analysis looks for syllable-paced energy in the vocal range plus sustained backing underneath, and when it finds both it protects the voice: de-essing instead of a blanket treble cut, a presence lift around 2.6 kHz so the words sit in front, and mid/side widening that leaves the centred vocal untouched.",
+    },
+    {
+      question: "Can it fix a bad recording?",
+      answer:
+        "It can make a decent recording noticeably better. It can't undo clipping that was recorded in, restore frequencies a low-bitrate file never had, or separate a vocal from a backing track. Where the source limits what's possible, the analysis says so rather than quietly boosting hiss.",
+    },
+    {
+      question: "What's free and what's premium?",
+      answer:
+        "The full analysis and a 30-second enhanced preview are free. Premium unlocks full-length exports, 320 kbps MP3 and lossless WAV, and manual control over each enhancement module.",
+    },
+    privacyFaq,
+  ],
+};
+
 export const tools: Tool[] = [
   mp3Cutter,
+  autoEnhance,
   audioConverter,
   videoToMp3,
   audioJoiner,
