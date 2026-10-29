@@ -12,6 +12,7 @@ import { decodeAudioFile, sliceAudioBuffer } from "@/lib/audio/decode";
 import { encodeWav, exportAudioBuffer, type ExportFormat } from "@/lib/audio/encode";
 import {
   applyEnhancement,
+  CHARACTERS,
   DEFAULT_OPTIONS,
   LOUDNESS_TARGETS,
   planEnhancement,
@@ -20,6 +21,7 @@ import {
   type EnhanceIntent,
   type EnhanceOptions,
   type EnhancePlan,
+  type VocalCharacter,
 } from "@/lib/audio/enhance";
 import { FREE_PREVIEW_SECONDS, usePremium } from "@/lib/premium";
 import { baseName, downloadBlob } from "@/lib/utils/download";
@@ -37,6 +39,7 @@ const MODULES: { key: keyof EnhanceOptions["modules"]; label: string; hint: stri
   { key: "eq", label: "Tonal balance", hint: "Corrective EQ from the measured spectrum" },
   { key: "deEss", label: "De-esser", hint: "Softens harsh S sounds on the vocal" },
   { key: "dynamics", label: "Dynamics", hint: "Levels quiet and loud passages" },
+  { key: "polish", label: "Studio character", hint: "Warmth, sheen, double and room" },
   { key: "stereo", label: "Stereo width", hint: "Widens a narrow mix, centre untouched" },
   { key: "loudness", label: "Loudness & limiting", hint: "Hits the target LUFS safely" },
 ];
@@ -206,6 +209,19 @@ const AudioEnhancer = () => {
     setOptions(DEFAULT_OPTIONS);
   };
 
+  /**
+   * Finish is the headline control, so picking one re-renders straight away.
+   * Everything under "Sound different?" is a deliberate tweak and can wait
+   * behind the play button; this one has to sound different immediately.
+   */
+  const chooseCharacter = (character: VocalCharacter): void => {
+    const next = { ...options, character };
+    setOptions(next);
+    if (buffer && analysis) {
+      void renderPreview(buffer, analysis, planEnhancement(analysis, next));
+    }
+  };
+
   const updateModule = (key: keyof EnhanceOptions["modules"]): void => {
     if (!isPremium) {
       setShowGate(true);
@@ -274,6 +290,10 @@ const AudioEnhancer = () => {
 
   const isRendering = stage === "rendering";
   const strengthFill = ((options.strength - 0.2) / 0.8) * 100;
+  // On "auto" the picker shows what the analysis actually chose, so the three
+  // buttons always reflect the sound you are hearing.
+  const activeCharacter =
+    options.character === "auto" ? (plan?.polish?.character ?? "natural") : options.character;
 
   return (
     <div className="mx-auto grid w-full max-w-6xl gap-6 lg:grid-cols-[minmax(0,1fr)_280px]">
@@ -296,10 +316,39 @@ const AudioEnhancer = () => {
             )}
           </div>
 
-          <p className="mt-2 text-xs text-zinc-500 dark:text-zinc-400">
-            Heard it differently? Open <span className="font-medium">Sound different?</span> below to
-            set the material, strength or loudness yourself.
-          </p>
+          <div className="mt-5">
+            <span className={labelClass}>Finish</span>
+            <div className="grid gap-2 sm:grid-cols-3">
+              {CHARACTERS.map((character) => {
+                const selected = activeCharacter === character.value;
+                return (
+                  <button
+                    key={character.value}
+                    type="button"
+                    onClick={() => chooseCharacter(character.value)}
+                    disabled={isRendering}
+                    aria-pressed={selected}
+                    className={`rounded-xl border px-4 py-3 text-left transition disabled:opacity-60 ${
+                      selected
+                        ? "border-violet-500/50 bg-violet-500/5 ring-1 ring-violet-500/30"
+                        : "border-(--surface-border) hover:border-violet-500/30"
+                    }`}
+                  >
+                    <span className="block text-sm font-semibold text-zinc-900 dark:text-white">
+                      {character.label}
+                    </span>
+                    <span className="mt-0.5 block text-[11px] leading-relaxed text-zinc-500 dark:text-zinc-400">
+                      {character.hint}
+                    </span>
+                  </button>
+                );
+              })}
+            </div>
+            <p className="mt-2 text-xs text-zinc-500 dark:text-zinc-400">
+              Want more control? Open <span className="font-medium">Sound different?</span> below to
+              set the material, strength or loudness yourself.
+            </p>
+          </div>
 
           {preview?.shortOfTarget && (
             <p className="mt-4 rounded-xl border border-amber-500/20 bg-amber-500/10 px-4 py-3 text-xs leading-relaxed text-amber-700 dark:text-amber-300">

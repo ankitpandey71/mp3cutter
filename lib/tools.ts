@@ -754,10 +754,10 @@ export const addAudioToSong: Tool = {
 export const autoEnhance: Tool = {
   path: "/auto-enhance",
   name: "Auto Enhance",
-  tagline: "Analyse a recording and master it to suit how it was sung and played.",
-  metaTitle: "Auto Enhance Audio — Master Your Song or Vocal Recording Online",
+  tagline: "Turn a home recording into a finished, radio-ready song.",
+  metaTitle: "Auto Enhance Audio — Make Your Vocal Recording Sound Professional",
   description:
-    "Upload a song or a vocal recording and get a mastered version: the tool measures loudness, dynamics, tonal balance, noise and sibilance, then applies only the corrections your recording needs. Runs entirely in your browser.",
+    "Upload a song you sang over a backing track and get a finished master: the tool measures loudness, dynamics, tonal balance, noise and sibilance, applies the corrections your recording needs, then adds a studio finish — warmth, sheen, a stereo double and a plate room. Runs entirely in your browser.",
   keywords: [
     "auto enhance audio",
     "online audio mastering",
@@ -767,11 +767,13 @@ export const autoEnhance: Tool = {
     "master a song online",
     "audio enhancer free",
     "clean up vocal recording",
+    "make my voice sound professional",
+    "studio vocal effect online",
   ],
   badge: "Premium · analysed on your device",
-  heading: { before: "Enhance your recording", highlight: "the way it was recorded" },
+  heading: { before: "Make your recording", highlight: "sound like a record" },
   intro:
-    "Drop in a song you sang over a backing track. We measure the loudness, dynamics, tonal balance, noise floor and sibilance, then build a mastering chain for that specific recording — and show you every decision.",
+    "Drop in a song you sang over a backing track. We measure the loudness, dynamics, tonal balance, noise floor and sibilance, build a mastering chain for that specific recording, then finish it the way a playback vocal is finished — saturated, doubled and sitting in a plate room. Every decision is shown to you.",
   icon: icons.wand,
   features: [
     {
@@ -780,8 +782,8 @@ export const autoEnhance: Tool = {
       icon: icons.trend,
     },
     {
-      title: "Tuned for voice over music",
-      body: "Detects a human vocal above a backing track and protects it: de-essing, presence lift, centre kept intact.",
+      title: "The playback finish",
+      body: "Correction alone cannot make a phone take sound like a record — production does. Harmonic warmth, top-end sheen, a wide stereo double and a plate room put your voice in a song instead of a bedroom.",
       icon: icons.mic,
     },
     privacyFeature,
