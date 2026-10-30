@@ -2,7 +2,8 @@
 
 import { useCallback, useEffect, useRef, useState } from "react";
 import FileDropzone from "./FileDropzone";
-import WaveformEditor from "./WaveformEditor";
+import WaveformEditor, { type WaveformEditorHandle } from "./WaveformEditor";
+import SelectionControls from "./SelectionControls";
 import ExportPanel from "./ExportPanel";
 import FileInfoCard from "./FileInfoCard";
 import AdSlot from "@/components/ads/AdSlot";
@@ -14,6 +15,7 @@ import {
 } from "@/lib/audio/decode";
 import { exportAudioBuffer, type ExportFormat } from "@/lib/audio/encode";
 import { baseName, downloadBlob } from "@/lib/utils/download";
+import type { Range } from "@/lib/presets";
 
 export interface CutterPreset {
   /** Initial selection length in seconds (defaults to the whole file) */
@@ -33,7 +35,9 @@ interface MP3CutterProps {
 const MP3Cutter = ({ preset = {} }: MP3CutterProps) => {
   const [file, setFile] = useState<File | null>(null);
   const [audioBuffer, setAudioBuffer] = useState<AudioBuffer | null>(null);
-  const [range, setRange] = useState({ start: 0, end: 0 });
+  const [range, setRange] = useState<Range>({ start: 0, end: 0 });
+  const [duration, setDuration] = useState(0);
+  const editorRef = useRef<WaveformEditorHandle>(null);
   const [playbackKey, setPlaybackKey] = useState(0);
   const [isDecoding, setIsDecoding] = useState(false);
   const [isExporting, setIsExporting] = useState(false);
@@ -67,8 +71,15 @@ const MP3Cutter = ({ preset = {} }: MP3CutterProps) => {
     setFile(null);
     setAudioBuffer(null);
     setRange({ start: 0, end: 0 });
+    setDuration(0);
     setError(null);
   };
+
+  /** Edits from the time fields and presets have to reach the waveform too. */
+  const handleRangeChange = useCallback((next: Range) => {
+    setRange(next);
+    editorRef.current?.setRegion(next.start, next.end);
+  }, []);
 
   const handleExport = useCallback(
     async (format: ExportFormat, bitrate: number, fadeIn: number, fadeOut: number) => {
@@ -122,14 +133,24 @@ const MP3Cutter = ({ preset = {} }: MP3CutterProps) => {
         <FileInfoCard file={file} buffer={audioBuffer} onReset={handleReset} />
 
         <WaveformEditor
+          ref={editorRef}
           file={file}
           onRegionChange={(start, end) => setRange({ start, end })}
-          onDurationReady={(dur) => setRange({ start: 0, end: dur })}
+          onDurationReady={setDuration}
           onRestart={() => setPlaybackKey((k) => k + 1)}
           selectionLength={preset.selectionLength}
           maxSelection={preset.maxSelection}
           playbackKey={playbackKey}
         />
+
+        {duration > 0 && (
+          <SelectionControls
+            range={range}
+            duration={duration}
+            onChange={handleRangeChange}
+            maxSelection={preset.maxSelection}
+          />
+        )}
 
         {audioBuffer && (
           <ExportPanel

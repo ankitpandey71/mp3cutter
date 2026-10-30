@@ -1,11 +1,25 @@
 "use client";
 
-import { useEffect, useRef, useState, useCallback, type CSSProperties } from "react";
+import {
+  useCallback,
+  useEffect,
+  useImperativeHandle,
+  useRef,
+  useState,
+  type CSSProperties,
+  type Ref,
+} from "react";
 import WaveSurfer from "wavesurfer.js";
 import RegionsPlugin, { type Region } from "wavesurfer.js/plugins/regions";
 import { formatTime } from "@/lib/utils/formatTime";
 
+export interface WaveformEditorHandle {
+  /** Moves the region from outside, e.g. a typed time or a preset chip */
+  setRegion: (start: number, end: number) => void;
+}
+
 interface WaveformEditorProps {
+  ref?: Ref<WaveformEditorHandle>;
   file: File;
   onRegionChange: (start: number, end: number) => void;
   onDurationReady: (duration: number) => void;
@@ -17,6 +31,7 @@ interface WaveformEditorProps {
 }
 
 const WaveformEditor = ({
+  ref,
   file,
   onRegionChange,
   onDurationReady,
@@ -34,7 +49,17 @@ const WaveformEditor = ({
   const [currentTime, setCurrentTime] = useState(0);
   const [duration, setDuration] = useState(0);
   const [zoom, setZoom] = useState(0);
-  const [selection, setSelection] = useState<{ start: number; end: number } | null>(null);
+
+  // The parent owns the selection, so expose a way to push one back down
+  useImperativeHandle(
+    ref,
+    () => ({
+      setRegion: (start, end) => {
+        activeRegionRef.current?.setOptions({ start, end });
+      },
+    }),
+    []
+  );
 
   useEffect(() => {
     if (!containerRef.current) return;
@@ -71,7 +96,6 @@ const WaveformEditor = ({
         resize: true,
       });
       activeRegionRef.current = region;
-      setSelection({ start: region.start, end: region.end });
       onRegionChange(region.start, region.end);
       onReady?.();
     });
@@ -81,9 +105,9 @@ const WaveformEditor = ({
     ws.on("pause", () => setIsPlaying(false));
     ws.on("finish", () => setIsPlaying(false));
 
-    // Live feedback while dragging; parent is only notified once the drag ends
+    // Report both the live drag and its end, so the time fields track the handles
     regions.on("region-update", (region) => {
-      setSelection({ start: region.start, end: region.end });
+      onRegionChange(region.start, region.end);
     });
 
     regions.on("region-updated", (region) => {
@@ -218,24 +242,6 @@ const WaveformEditor = ({
         </p>
       </div>
 
-      {selection && (
-        <div className="grid grid-cols-3 divide-x divide-zinc-900/5 border-t border-zinc-900/5 bg-violet-500/[0.03] text-center dark:divide-white/5 dark:border-white/5">
-          {[
-            { label: "Start", value: selection.start },
-            { label: "End", value: selection.end },
-            { label: "Length", value: selection.end - selection.start },
-          ].map((item) => (
-            <div key={item.label} className="px-3 py-3">
-              <div className="text-[10px] font-medium uppercase tracking-wider text-zinc-500 dark:text-zinc-400">
-                {item.label}
-              </div>
-              <div className="mt-0.5 font-mono text-sm font-semibold tabular-nums text-zinc-900 dark:text-white">
-                {formatTime(item.value)}
-              </div>
-            </div>
-          ))}
-        </div>
-      )}
     </div>
   );
 };
