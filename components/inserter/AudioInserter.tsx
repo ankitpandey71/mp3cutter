@@ -6,7 +6,7 @@ import ExportPanel from "@/components/cutter/ExportPanel";
 import FileInfoCard from "@/components/cutter/FileInfoCard";
 import AdSlot from "@/components/ads/AdSlot";
 import InsertPointPicker from "./InsertPointPicker";
-import { decodeAudioFile, getFadedBuffer } from "@/lib/audio/decode";
+import { decodeAudioFile, decodeErrorMessage, getFadedBuffer } from "@/lib/audio/decode";
 import { encodeWav, exportAudioBuffer, type ExportFormat } from "@/lib/audio/encode";
 import { insertAudio, type InsertMode } from "@/lib/audio/effects";
 import { formatTime } from "@/lib/utils/formatTime";
@@ -50,8 +50,13 @@ const AudioInserter = () => {
       const loaded = { file, buffer: await decodeAudioFile(file) };
       if (target === "song") setSong(loaded);
       else setClip(loaded);
-    } catch {
-      setError(`We couldn't read “${file.name}”. Try a different file or format (MP3, WAV, OGG, M4A).`);
+    } catch (err) {
+      setError(
+        decodeErrorMessage(
+          err,
+          `We couldn't read “${file.name}”. Try a different file or format (MP3, WAV, OGG, M4A).`
+        )
+      );
     } finally {
       setLoading(null);
     }

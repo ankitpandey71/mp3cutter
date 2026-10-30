@@ -99,7 +99,7 @@ export const mp3Cutter: Tool = {
   tagline: "Trim any audio file to the exact part you need.",
   metaTitle: "SnipAudio — Free Online MP3 Cutter & Audio Trimmer (No Upload)",
   description:
-    "Cut, trim, and export MP3, WAV, OGG, M4A, AAC and FLAC files for free, right in your browser. No uploads, no signup, no watermark — add fade in/out and download as MP3 or WAV.",
+    "Cut and trim MP3, WAV, OGG, M4A, AAC and FLAC free in your browser. No uploads, no signup, no watermark — add fade in/out and export as MP3 or WAV.",
   keywords: [
     "mp3 cutter",
     "online mp3 cutter",
@@ -154,7 +154,7 @@ export const ringtoneMaker: Tool = {
   tagline: "Turn any song into a 30-second ringtone with fades.",
   metaTitle: "Ringtone Maker — Make a Ringtone from Any Song Online, Free",
   description:
-    "Make a ringtone from any song in seconds. Pick the best 30 seconds, add a smooth fade in and out, and download as MP3 — free, no signup, and your music never leaves your device.",
+    "Make a ringtone from any song in seconds. Pick the best 30 seconds, add a smooth fade in and out, and download as MP3 — free, with no signup.",
   keywords: [
     "ringtone maker",
     "make ringtone online",
@@ -211,7 +211,7 @@ export const audioJoiner: Tool = {
   tagline: "Merge multiple MP3 or WAV files into one track.",
   metaTitle: "Audio Joiner — Merge MP3 Files Online Free (No Upload)",
   description:
-    "Join multiple MP3, WAV, M4A, OGG or FLAC files into a single track. Reorder clips, add gaps and fades, and download as MP3 or WAV — free and entirely in your browser.",
+    "Join MP3, WAV, M4A, OGG or FLAC files into one track. Reorder clips, add gaps and fades, then download as MP3 or WAV — free, entirely in your browser.",
   keywords: [
     "audio joiner",
     "merge mp3",
@@ -696,7 +696,7 @@ export const addAudioToSong: Tool = {
   tagline: "Insert a clip, voice-over or sound effect anywhere in a song.",
   metaTitle: "Add Audio to a Song at Any Point — Insert or Overlay Online Free",
   description:
-    "Insert audio into the middle of any song, or mix a voice-over or sound effect on top at the exact second you choose. Free, no upload — everything runs in your browser.",
+    "Insert audio into the middle of any song, or mix a voice-over or sound effect on top at the exact second you choose — free, with no upload.",
   keywords: [
     "add audio to song",
     "insert audio into mp3",
@@ -757,7 +757,7 @@ export const autoEnhance: Tool = {
   tagline: "Turn a home recording into a finished, radio-ready song.",
   metaTitle: "Auto Enhance Audio — Make Your Vocal Recording Sound Professional",
   description:
-    "Upload a song you sang over a backing track and get a finished master: the tool measures loudness, dynamics, tonal balance, noise and sibilance, applies the corrections your recording needs, then adds a studio finish — warmth, sheen, a stereo double and a plate room. Runs entirely in your browser.",
+    "Turn a vocal-over-backing-track recording into a finished master. Measures loudness, tone and noise, fixes what needs it, then adds warmth, sheen and room.",
   keywords: [
     "auto enhance audio",
     "online audio mastering",

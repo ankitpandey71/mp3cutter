@@ -13,7 +13,7 @@ export const siteConfig = {
   url: resolveSiteUrl().replace(/\/$/, ""),
   title: "SnipAudio — Free Online MP3 Cutter & Audio Trimmer (No Upload)",
   description:
-    "Cut, trim, and export MP3, WAV, OGG, M4A, AAC and FLAC files for free, right in your browser. No uploads, no signup, no watermark — add fade in/out and download as MP3 or WAV.",
+    "Cut and trim MP3, WAV, OGG, M4A, AAC and FLAC free in your browser. No uploads, no signup, no watermark — add fade in/out and export as MP3 or WAV.",
   keywords: [
     "mp3 cutter",
     "online mp3 cutter",

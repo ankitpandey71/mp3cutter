@@ -1,3 +1,5 @@
+import { formatBytes } from "@/lib/utils/formatTime";
+
 let sharedContext: AudioContext | null = null;
 
 export const getAudioContext = (): AudioContext => {
@@ -11,9 +13,35 @@ export const getAudioContext = (): AudioContext => {
   return sharedContext;
 };
 
+/**
+ * Decoding expands to 32-bit floats per channel, so a file this size already
+ * costs roughly 1 GB of RAM once decoded. Past it the tab tends to be killed
+ * outright, which looks like a silent failure — better to refuse up front.
+ */
+export const MAX_AUDIO_BYTES = 200 * 1024 * 1024;
+
+/** Thrown for problems we can explain to the visitor, rather than a decoder fault. */
+export class AudioFileError extends Error {}
+
+/** Prefers our own explanation over a generic decoder failure message. */
+export const decodeErrorMessage = (error: unknown, fallback: string): string =>
+  error instanceof AudioFileError ? error.message : fallback;
+
 export const decodeAudioFile = async (file: File): Promise<AudioBuffer> => {
+  if (file.size === 0) {
+    throw new AudioFileError("That file is empty.");
+  }
+  if (file.size > MAX_AUDIO_BYTES) {
+    throw new AudioFileError(
+      `That file is ${formatBytes(file.size)}. Files over ${formatBytes(
+        MAX_AUDIO_BYTES
+      )} can't be decoded in the browser — trim it first or use a smaller export.`
+    );
+  }
   const arrayBuffer = await file.arrayBuffer();
   const ctx = getAudioContext();
+  // Safari leaves the context suspended until a gesture resumes it
+  if (ctx.state === "suspended") await ctx.resume().catch(() => {});
   return ctx.decodeAudioData(arrayBuffer.slice(0));
 };
 

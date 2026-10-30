@@ -8,7 +8,7 @@ import FileInfoCard from "@/components/cutter/FileInfoCard";
 import PremiumGate, { PremiumBadge } from "@/components/premium/PremiumGate";
 import AnalysisReport from "./AnalysisReport";
 import { analyzeAudio, type AudioAnalysis } from "@/lib/audio/analyze";
-import { decodeAudioFile, sliceAudioBuffer } from "@/lib/audio/decode";
+import { decodeAudioFile, decodeErrorMessage, sliceAudioBuffer } from "@/lib/audio/decode";
 import { encodeWav, exportAudioBuffer, type ExportFormat } from "@/lib/audio/encode";
 import {
   applyEnhancement,
@@ -183,9 +183,12 @@ const AudioEnhancer = () => {
         setStage("analyzing");
         measured = await analyzeAudio(decoded, setStageProgress);
         setAnalysis(measured);
-      } catch {
+      } catch (err) {
         setError(
-          "We couldn't read that file. Try a different audio file or format (MP3, WAV, OGG, M4A, FLAC)."
+          decodeErrorMessage(
+            err,
+            "We couldn't read that file. Try a different audio file or format (MP3, WAV, OGG, M4A, FLAC)."
+          )
         );
         setFile(null);
         setBuffer(null);

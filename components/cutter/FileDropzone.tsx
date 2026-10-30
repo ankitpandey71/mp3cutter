@@ -1,6 +1,8 @@
 "use client";
 
 import { useCallback, useRef, useState } from "react";
+import { MAX_AUDIO_BYTES } from "@/lib/audio/decode";
+import { formatBytes } from "@/lib/utils/formatTime";
 
 export type MediaKind = "audio" | "video";
 
@@ -38,6 +40,7 @@ const FileDropzone = ({
   kind = "audio",
 }: FileDropzoneProps) => {
   const [isDragging, setIsDragging] = useState(false);
+  const [rejection, setRejection] = useState<string | null>(null);
   const inputRef = useRef<HTMLInputElement>(null);
   const media = MEDIA[kind];
 
@@ -45,12 +48,24 @@ const FileDropzone = ({
     (files: FileList | null) => {
       if (!files || files.length === 0) return;
       const picked = multiple ? Array.from(files) : [files[0]];
-      const accepted = picked.filter(
+      const rightType = picked.filter(
         (file) => file.type.startsWith(media.mimePrefix) || media.pattern.test(file.name)
       );
-      if (accepted.length < picked.length) {
-        alert(`Please choose ${media.noun} files only (${media.formats.join(", ")}).`);
+      const accepted = rightType.filter((file) => file.size <= MAX_AUDIO_BYTES);
+
+      // Report the first problem that applies, rather than stacking messages
+      if (rightType.length < picked.length) {
+        setRejection(
+          `Please choose ${media.noun} files only (${media.formats.join(", ")}).`
+        );
+      } else if (accepted.length < rightType.length) {
+        setRejection(
+          `Files over ${formatBytes(MAX_AUDIO_BYTES)} can't be decoded in the browser.`
+        );
+      } else {
+        setRejection(null);
       }
+
       if (accepted.length > 0) onFilesSelected(accepted);
     },
     [onFilesSelected, multiple, media]
@@ -135,6 +150,15 @@ const FileDropzone = ({
           </span>
         ))}
       </div>
+
+      {rejection && (
+        <p
+          role="alert"
+          className="relative rounded-xl border border-red-500/20 bg-red-500/10 px-3 py-2 text-xs font-medium text-red-700 dark:text-red-300"
+        >
+          {rejection}
+        </p>
+      )}
 
       <p className="relative flex items-center gap-1.5 text-xs text-zinc-500 dark:text-zinc-500">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.8} className="h-3.5 w-3.5 text-emerald-500">

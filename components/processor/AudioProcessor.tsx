@@ -5,7 +5,7 @@ import FileDropzone from "@/components/cutter/FileDropzone";
 import ExportPanel from "@/components/cutter/ExportPanel";
 import FileInfoCard from "@/components/cutter/FileInfoCard";
 import AdSlot from "@/components/ads/AdSlot";
-import { decodeAudioFile, getFadedBuffer } from "@/lib/audio/decode";
+import { decodeAudioFile, decodeErrorMessage, getFadedBuffer } from "@/lib/audio/decode";
 import { encodeWav, exportAudioBuffer, type ExportFormat } from "@/lib/audio/encode";
 import { baseName, downloadBlob } from "@/lib/utils/download";
 import { defaultSettings, effectConfigs, type EffectId, type EffectSettings } from "./effects";
@@ -56,11 +56,14 @@ const AudioProcessor = ({ effect, initialFile, onReset }: AudioProcessorProps) =
       setBuffer(decoded);
       setFile(selected);
       setOriginalUrl(trackUrl(selected));
-    } catch {
+    } catch (err) {
       setError(
-        config.kind === "video"
-          ? "We couldn't read the audio track from that video. Try an MP4 or WEBM file — very large videos may also run out of memory."
-          : "We couldn't read that audio file. Try a different file or format (MP3, WAV, OGG, M4A)."
+        decodeErrorMessage(
+          err,
+          config.kind === "video"
+            ? "We couldn't read the audio track from that video. Try an MP4 or WEBM file — very large videos may also run out of memory."
+            : "We couldn't read that audio file. Try a different file or format (MP3, WAV, OGG, M4A)."
+        )
       );
     } finally {
       setIsDecoding(false);

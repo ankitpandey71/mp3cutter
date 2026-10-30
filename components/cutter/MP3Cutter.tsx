@@ -8,6 +8,7 @@ import FileInfoCard from "./FileInfoCard";
 import AdSlot from "@/components/ads/AdSlot";
 import {
   decodeAudioFile,
+  decodeErrorMessage,
   getFadedBuffer,
   sliceAudioBuffer,
 } from "@/lib/audio/decode";
@@ -50,9 +51,12 @@ const MP3Cutter = ({ preset = {} }: MP3CutterProps) => {
       const decoded = await decodeAudioFile(selected);
       setAudioBuffer(decoded);
       setFile(selected);
-    } catch {
+    } catch (err) {
       setError(
-        "We couldn't read that audio file. Try a different file or format (MP3, WAV, OGG, M4A)."
+        decodeErrorMessage(
+          err,
+          "We couldn't read that audio file. Try a different file or format (MP3, WAV, OGG, M4A)."
+        )
       );
     } finally {
       setIsDecoding(false);

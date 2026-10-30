@@ -40,7 +40,6 @@ export const encodeMp3 = async (
 
     if (onProgress && i % (blockSize * 200) === 0) {
       onProgress(Math.min(0.99, i / blockSize / totalBlocks));
-      // eslint-disable-next-line no-await-in-loop
       await new Promise((resolve) => setTimeout(resolve, 0));
     }
   }
